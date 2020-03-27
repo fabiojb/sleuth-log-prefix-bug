@@ -28,7 +28,7 @@ public class WebClientLogPrefixTest {
         private WebClient webClient;
 
         @Test
-        void test() {
+        void testLogPrefix_WithSleuth() {
             var mono = webClient.post().uri("/status/400")
                     .retrieve()
                     .onStatus(httpStatus -> true, c -> Mono.just(c.logPrefix())
@@ -55,7 +55,7 @@ public class WebClientLogPrefixTest {
         private WebClient webClient;
 
         @Test
-        void test() {
+        void testLogPrefix_WithoutSleuth() {
             var mono = webClient.post().uri("/status/400")
                     .retrieve()
                     .onStatus(httpStatus -> true, c -> Mono.just(c.logPrefix())
