@@ -2,6 +2,8 @@ package com.example.sleuthlogprefixbug;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class WebClientLogPrefixTest {
 
+    private static Logger logger = LoggerFactory.getLogger(WebClientLogPrefixTest.class);
+
     @Nested
     @SpringBootTest
     @Import(WebClientConfiguration.class)
@@ -27,7 +31,9 @@ public class WebClientLogPrefixTest {
         void test() {
             var mono = webClient.post().uri("/status/400")
                     .retrieve()
-                    .onStatus(httpStatus -> true, c -> Mono.just(new LogPrefixContentException(c.logPrefix())))
+                    .onStatus(httpStatus -> true, c -> Mono.just(c.logPrefix())
+                            .doOnNext(logPrefix -> logger.info("{}<- logPrefix", logPrefix))
+                            .map(LogPrefixContentException::new))
                     .toBodilessEntity();
 
             StepVerifier.create(mono)
@@ -52,7 +58,9 @@ public class WebClientLogPrefixTest {
         void test() {
             var mono = webClient.post().uri("/status/400")
                     .retrieve()
-                    .onStatus(httpStatus -> true, c -> Mono.just(new LogPrefixContentException(c.logPrefix())))
+                    .onStatus(httpStatus -> true, c -> Mono.just(c.logPrefix())
+                            .doOnNext(logPrefix -> logger.info("{}<- logPrefix", logPrefix))
+                            .map(LogPrefixContentException::new))
                     .toBodilessEntity();
 
             StepVerifier.create(mono)
